@@ -19,8 +19,10 @@ DEFAULT_LIMIT = 75
 
 class PaginatedCollection(Collection):
     def paginate(self, query=None, projection=None, prev_page=None, next_page=None,
-                 limit=DEFAULT_LIMIT, ordering=DESCENDING, ordering_field=DEFAULT_ORDERING_FIELD):
-        return Paginate(self, query, projection, prev_page, next_page, limit, ordering, ordering_field).paginate()
+                 limit=DEFAULT_LIMIT, ordering=DESCENDING, ordering_field=DEFAULT_ORDERING_FIELD,
+                 automatic_pagination=True):
+        return Paginate(self, query, projection, prev_page, next_page, limit, ordering, ordering_field,
+                        automatic_pagination).paginate()
 
 
 def getitem(self, name):
