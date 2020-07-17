@@ -1,7 +1,7 @@
 import base64
 import pickle
 
-import pymongo
+from mongonator import ASCENDING, DESCENDING
 
 
 class PointerMixin:
@@ -30,13 +30,13 @@ class PointerMixin:
 
     def get_page_order(self, ordering_case, next=False):
         def _get_next_page_order(ordering_case):
-            if ordering_case == pymongo.ASCENDING:
-                return '$gt', pymongo.ASCENDING
-            return '$lt', pymongo.DESCENDING
+            if ordering_case == ASCENDING:
+                return '$gt', ASCENDING
+            return '$lt', DESCENDING
 
         def _get_prev_page_order(ordering_case):
-            if ordering_case == pymongo.ASCENDING:
-                return '$lt', pymongo.DESCENDING
-            return '$gt', pymongo.ASCENDING
+            if ordering_case == ASCENDING:
+                return '$lt', DESCENDING
+            return '$gt', ASCENDING
 
         return _get_next_page_order(ordering_case) if next else _get_prev_page_order(ordering_case)

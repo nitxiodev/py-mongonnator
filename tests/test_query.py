@@ -1,35 +1,34 @@
 from unittest.mock import patch
 
-import pymongo
 import pytest
 from bson import ObjectId
 
-from mongonator import DEFAULT_ORDERING_FIELD
+from mongonator import DEFAULT_ORDERING_FIELD, ASCENDING
 from mongonator.query import Query
 
 
 @pytest.fixture
 def default_query():
-    yield Query(None, None, None, pymongo.ASCENDING, DEFAULT_ORDERING_FIELD)
+    yield Query(None, None, None, ASCENDING, DEFAULT_ORDERING_FIELD)
 
 
 @pytest.fixture
 def custom_query():
-    yield Query(None, None, None, pymongo.ASCENDING, 'custom_field')
+    yield Query(None, None, None, ASCENDING, 'custom_field')
 
 
 def test_build_sortable_filter_with_default_field(default_query):
-    default_query._build_sortable_filter(pymongo.ASCENDING)
+    default_query._build_sortable_filter(ASCENDING)
     assert default_query._sortable_filter == [
-        ('_id', pymongo.ASCENDING)
+        ('_id', ASCENDING)
     ]
 
 
 def test_build_sortable_filter_with_custom_field(custom_query):
-    custom_query._build_sortable_filter(pymongo.ASCENDING)
+    custom_query._build_sortable_filter(ASCENDING)
     assert custom_query._sortable_filter == [
-        ('custom_field', pymongo.ASCENDING),
-        ('_id', pymongo.ASCENDING)
+        ('custom_field', ASCENDING),
+        ('_id', ASCENDING)
     ]
 
 
@@ -59,8 +58,8 @@ def test_build_mongo_filter_with_custom_field_with_or(custom_query):
 
 
 @pytest.mark.parametrize('query, prev_page, next_page, ordering_case, field, result', [
-    (None, None, None, pymongo.ASCENDING, DEFAULT_ORDERING_FIELD, (
-            pymongo.ASCENDING,
+    (None, None, None, ASCENDING, DEFAULT_ORDERING_FIELD, (
+            ASCENDING,
     ))
 ])
 def test_build_query(query, prev_page, next_page, ordering_case, field, result):
@@ -71,10 +70,10 @@ def test_build_query(query, prev_page, next_page, ordering_case, field, result):
 
 
 @pytest.mark.parametrize('query, prev_page, next_page, ordering_case, field, result', [
-    (None, 'prev_page', None, pymongo.ASCENDING, DEFAULT_ORDERING_FIELD, (
+    (None, 'prev_page', None, ASCENDING, DEFAULT_ORDERING_FIELD, (
             'prev_page', False
     )),
-    (None, None, 'next_page', pymongo.ASCENDING, DEFAULT_ORDERING_FIELD, (
+    (None, None, 'next_page', ASCENDING, DEFAULT_ORDERING_FIELD, (
             'next_page', True
     ))
 ])

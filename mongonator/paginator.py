@@ -19,7 +19,7 @@ class Paginate(Query):
         :param prev_page: Pointer to previous page
         :param next_page: Pointer to next page
         :param limit: Limit of results to retrieve from db
-        :param ordering_field: Ordering case for pagination (pymongo.ASCENDING, pymongo.DESCENDING)
+        :param ordering_field: Ordering case for pagination (ASCENDING, DESCENDING)
         :param field: Field used to paginate
         """
         super(Paginate, self).__init__(query, prev_page, next_page, ordering_field, field)

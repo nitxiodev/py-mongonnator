@@ -1,7 +1,7 @@
-import pymongo
 import pytest
 from bson import ObjectId
 
+from mongonator import ASCENDING, DESCENDING
 from mongonator.pointermixin import PointerMixin
 
 
@@ -62,20 +62,20 @@ def test_pagination_pointer_both(pointer_mixin):
 
 
 def test_get_page_order_prev_ascending_order(pointer_mixin):
-    page_order = pointer_mixin.get_page_order(pymongo.ASCENDING, next=False)
-    assert page_order == ('$lt', pymongo.DESCENDING)
+    page_order = pointer_mixin.get_page_order(ASCENDING, next=False)
+    assert page_order == ('$lt', DESCENDING)
 
 
 def test_get_page_order_prev_descending_order(pointer_mixin):
-    page_order = pointer_mixin.get_page_order(pymongo.DESCENDING, next=False)
-    assert page_order == ('$gt', pymongo.ASCENDING)
+    page_order = pointer_mixin.get_page_order(DESCENDING, next=False)
+    assert page_order == ('$gt', ASCENDING)
 
 
 def test_get_page_order_next_ascending_order(pointer_mixin):
-    page_order = pointer_mixin.get_page_order(pymongo.ASCENDING, next=True)
-    assert page_order == ('$gt', pymongo.ASCENDING)
+    page_order = pointer_mixin.get_page_order(ASCENDING, next=True)
+    assert page_order == ('$gt', ASCENDING)
 
 
 def test_get_page_order_next_descending_order(pointer_mixin):
-    page_order = pointer_mixin.get_page_order(pymongo.DESCENDING, next=True)
-    assert page_order == ('$lt', pymongo.DESCENDING)
+    page_order = pointer_mixin.get_page_order(DESCENDING, next=True)
+    assert page_order == ('$lt', DESCENDING)
