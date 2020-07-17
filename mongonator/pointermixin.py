@@ -8,9 +8,9 @@ class PointerMixin:
     def encode(self, collection_data, field):
         return base64.b64encode(pickle.dumps((collection_data.get(field), collection_data.get("_id"))))
 
-    def decode(self, collection_data):
-        if collection_data is not None:
-            return pickle.loads(base64.b64decode(collection_data))
+    def decode(self, encoded_pointer):
+        if encoded_pointer is not None:
+            return pickle.loads(base64.b64decode(encoded_pointer))
         return None
 
     def paginator_pointers(self, collection_data, ordering_case, field):
