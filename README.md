@@ -1,2 +1,2 @@
-# mongo-python-driver-paginator
+# py-mongonnator
 Paginator for pymongo
