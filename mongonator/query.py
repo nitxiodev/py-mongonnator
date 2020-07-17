@@ -21,9 +21,8 @@ class Query(PointerMixin):
     def is_first_query(self):
         return self._prev_page is None and self._next_page is None
 
-    def _build_sortable_filter(self, field, _id, mongo_key, ordering):
+    def _build_mongo_filter(self, field, _id, mongo_key):
         if self._field != '_id':
-            self._sortable_filter.append((self._field, ordering))
             next_page_query = [
                 {self._field: {mongo_key: field}},
                 {self._field: field,
@@ -40,23 +39,25 @@ class Query(PointerMixin):
         else:
             self._mongo_filter['_id'] = {mongo_key: ObjectId(_id)}
 
+    def _build_sortable_filter(self, ordering):
+        if self._field != '_id':
+            self._sortable_filter.append((self._field, ordering))
+
         self._sortable_filter.append(('_id', self._ordering))
+
+    def _build_internal_structures(self, paginator_pointer, next):
+        mongo_key, ordering = self.get_page_order(self._ordering, next)
+        paginated_field, _id = self.decode(paginator_pointer)
+        self._build_sortable_filter(ordering)
+        self._build_mongo_filter(paginated_field, _id, mongo_key)
 
     def build_query(self):
         if self._query is not None:
             self._mongo_filter.update(**self._query)
 
         if self._prev_page is not None:
-            mongo_key, ordering = self.get_page_order(self._ordering)
-            paginated_field, _id = self.decode(self._prev_page)
-            self._build_sortable_filter(paginated_field, _id, mongo_key, ordering)
-
+            self._build_internal_structures(self._prev_page, False)
         elif self._next_page is not None:
-            mongo_key, ordering = self.get_page_order(self._ordering, next=True)
-            paginated_field, _id = self.decode(self._next_page)
-            self._build_sortable_filter(paginated_field, _id, mongo_key, ordering)
+            self._build_internal_structures(self._next_page, True)
         else:
-            if self._field != '_id':
-                self._sortable_filter.append((self._field, self._ordering))
-
-            self._sortable_filter.append(('_id', self._ordering))
+            self._build_sortable_filter(self._ordering)

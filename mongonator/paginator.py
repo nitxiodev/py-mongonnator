@@ -3,7 +3,7 @@ from typing import Optional
 
 from pymongo.collection import Collection
 
-from mongonator.querymixin import Query
+from mongonator.query import Query
 
 PaginatedResponse = namedtuple('PaginatedResponse', 'response prev_page next_page batch_size')
 
