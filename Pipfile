@@ -12,6 +12,7 @@ pytest-cov = "*"
 coverage = "==4.5.4"
 tox = "*"
 tox-conda = "*"
+zipp = "==1.0.0"
 
 [requires]
 python_version = "3.7"
