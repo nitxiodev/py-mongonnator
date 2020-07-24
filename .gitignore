@@ -34,3 +34,5 @@ nosetests.xml
 *.log.*
 *.env.yaml
 htmlcov/
+changelog.py
+example.py
