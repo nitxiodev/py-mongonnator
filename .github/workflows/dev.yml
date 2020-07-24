@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - dev
-      
+    paths-ignore:
+      - '.github/**'
+
 jobs:
   tests:
     runs-on: ubuntu-latest
