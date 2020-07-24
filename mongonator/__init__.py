@@ -21,8 +21,9 @@ class PaginatedCollection(Collection):
     def paginate(self, query=None, projection=None, prev_page=None, next_page=None,
                  limit=DEFAULT_LIMIT, ordering=DESCENDING, ordering_field=DEFAULT_ORDERING_FIELD,
                  automatic_pagination=True):
-        return Paginate(self, query, projection, prev_page, next_page, limit, ordering, ordering_field,
-                        automatic_pagination).paginate()
+        return Paginate(collection=self, limit=limit, ordering_field=ordering_field, ordering_case=ordering,
+                        query=query, projection=projection, prev_page=prev_page, next_page=next_page,
+                        automatic_pagination=automatic_pagination).paginate()
 
 
 def getitem(self, name):
@@ -33,4 +34,6 @@ def getitem(self, name):
 Database.__getitem__ = getitem
 
 name = 'Mongonator'
-__all__ = ['MongoClientWithPagination']
+__all__ = ['MongoClientWithPagination', 'DEFAULT_LIMIT',
+           'DEFAULT_ORDERING_FIELD', 'ASCENDING', 'DESCENDING']
+__version__ = '1.0'
