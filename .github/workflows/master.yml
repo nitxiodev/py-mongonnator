@@ -1,4 +1,4 @@
-name: PyMongonnator build and deployment on Pypi
+name: Build
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - master
     paths-ignore:
       - '.github/**'
+      - 'README.md'
 
 jobs:
   store_git_tag:
