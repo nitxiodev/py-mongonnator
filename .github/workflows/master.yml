@@ -1,0 +1,115 @@
+name: PyMongonnator build and deployment on Pypi
+
+on:
+  push:
+    branches:
+      - master
+    paths-ignore:
+      - '.github/**'
+
+jobs:
+  store_git_tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v1
+
+      - name: Set git tag version globally
+        shell: bash
+        run: |
+          expr $(git describe --tags $(git rev-list --tags --max-count=1)) > tag_version.txt
+
+      - name: Upload version in artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: git_version
+          path: tag_version.txt
+
+  tests:
+    runs-on: ubuntu-latest
+    needs: store_git_tag
+    strategy:
+      max-parallel: 5
+      matrix:
+        python-version: [3, 3.5, 3.6, 3.7, 3.8]
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v1
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Installing packages for testing
+        run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -U pip pipenv pytest tox-gh-actions
+          pipenv sync --dev
+
+      - name: Running tests
+        run: |
+          source venv/bin/activate
+          tox
+
+  build:
+    runs-on: ubuntu-latest
+    needs: tests
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v1
+
+      - name: Download git tag version
+        uses: actions/download-artifact@v1
+        with:
+          name: git_version
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Build package
+        run: |
+          export VERSION=`cat git_version/tag_version.txt`
+          sed -i -e s/\"${VERSION}"/$VERSION\/g mongonator/__init__.py
+          python3 setup.py sdist bdist_wheel
+
+      - name: Upload version in artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: dist
+          path: dist/
+
+      - name: Check package
+        run: |
+          pip install -U pip twine
+          twine check dist/*
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download package
+        uses: actions/download-artifact@v1
+        with:
+          name: dist
+
+      - name: Set up Python 3.7
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.7
+
+      - name: Deploy into pypi
+        run: |
+          pip install twine
+          export TWINE_USERNAME=$PYPI_USERNAME
+          export TWINE_PASSWORD=$PYPI_PASSWORD
+          twine upload dist/*
+        env:
+          PYPI_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+          PYPI_USERNAME: ${{ secrets.PYPI_USERNAME }}
