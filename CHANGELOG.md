@@ -22,3 +22,8 @@
 ### updating readme
 - updating readme
 - github: fixing action
+
+## [v1.0.2] - 31-07-2020
+### updating readme
+- updating readme adding python version compatibility
+- github: dropping dev action 
