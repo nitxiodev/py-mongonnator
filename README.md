@@ -6,6 +6,8 @@ The reason for making this library was to paginate over thousands of data stored
 ```bash
 pip install PyMongonnator
 ```
+### Python version compat
+`PyMongonnator` is compatible with the latest Python3 versions: `3`, `3.5`, `3.6`, `3.7`, `3.8`. 
 
 # Usage
 
