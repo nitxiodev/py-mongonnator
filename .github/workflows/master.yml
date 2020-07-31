@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-#    paths-ignore:
-#      - '.github/**'
+    paths-ignore:
+      - '.github/**'
 
 jobs:
   store_git_tag:
@@ -76,7 +76,7 @@ jobs:
         run: |
           python3 -m venv venv
           source venv/bin/activate
-          pip install -U pip setuptools wheel 
+          pip install -U pip setuptools wheel
 
           export VERSION=`cat git_version/tag_version.txt`
           sed -i -e s/\${VERSION}/$VERSION\/g mongonator/__init__.py
