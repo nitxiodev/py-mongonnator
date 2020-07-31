@@ -1,5 +1,6 @@
-# py-mongonnator
-Just a simple production-ready mongo paginator written in Python for [PyMongo](https://github.com/mongodb/mongo-python-driver) package using bucket pattern. 
+# py-mongonnator ![Build](https://github.com/nitxiodev/py-mongonnator/workflows/Build/badge.svg?branch=master)
+Just a simple production-ready mongo paginator written in Python for [PyMongo](https://github.com/mongodb/mongo-python-driver) package using bucket pattern. This package is based in this wonderful `Javascript` module: [mongo-cursor-pagination](https://www.npmjs.com/package/mongo-cursor-pagination).
+The reason for making this library was to paginate over thousands of data stored in mongo collections and we didn't find any library that seamlessly integrated with Pymongo. 
 
 # Installation 
 ```bash

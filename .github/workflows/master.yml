@@ -1,4 +1,4 @@
-name: PyMongonnator build and deployment on Pypi
+name: Build
 
 on:
   push:
@@ -6,6 +6,7 @@ on:
       - master
     paths-ignore:
       - '.github/**'
+      - 'README.md'
 
 jobs:
   store_git_tag:
@@ -74,8 +75,12 @@ jobs:
 
       - name: Build package
         run: |
+          python3 -m venv venv
+          source venv/bin/activate
+          pip install -U pip setuptools wheel
+
           export VERSION=`cat git_version/tag_version.txt`
-          sed -i -e s/\"${VERSION}"/$VERSION\/g mongonator/__init__.py
+          sed -i -e s/\${VERSION}/$VERSION\/g mongonator/__init__.py
           python3 setup.py sdist bdist_wheel
 
       - name: Upload version in artifact
