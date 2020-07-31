@@ -17,3 +17,8 @@
 - pipfile: adding dependencies
 - mongonator: adding first version of library
 - Initial commit
+
+## [v1.0.1] - 31-07-2020
+### updating readme
+- updating readme
+- github: fixing action
