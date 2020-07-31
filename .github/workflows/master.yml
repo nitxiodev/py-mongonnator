@@ -4,8 +4,8 @@ on:
   push:
     branches:
       - master
-    paths-ignore:
-      - '.github/**'
+#    paths-ignore:
+#      - '.github/**'
 
 jobs:
   store_git_tag:
@@ -75,7 +75,7 @@ jobs:
       - name: Build package
         run: |
           export VERSION=`cat git_version/tag_version.txt`
-          sed -i -e s/\"${VERSION}"/$VERSION\/g mongonator/__init__.py
+          sed -i -e s/\${VERSION}/$VERSION\/g mongonator/__init__.py
           python3 setup.py sdist bdist_wheel
 
       - name: Upload version in artifact
