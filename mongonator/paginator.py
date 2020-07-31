@@ -99,6 +99,7 @@ class Paginate(Query):
 
     def paginate(self):
         """Paginate in batches of `limit` size over entire collection"""
+        
         response = self.paginate_one_batch()
 
         if self._automatic_pagination:
