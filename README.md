@@ -24,7 +24,7 @@ pip install PyMongonnator
     - `ASCENDING`: Ascending sort order.
     - `DESCENDING`: Descending sort order (**default**).
 - `ordering_field`: Field to order collections. Default is `_id`.
-- `projection`:  a dict specifying the fields to include or exclude. Please note that the id cannot be excluded because is mandatory in pagination. Default is `{}` (include all).
+- `projection`:  a dict specifying the fields to include or exclude. Please note that the id cannot be excluded because is mandatory in pagination. Default is `{}` (include only the `_id`).
 - `prev_page`: Previous pagination pointer. When no previous page is available, will be None. Default is `None`.
 - `next_page`: Next pagination pointer. When no next page is available, will be None. Default is `None`.
 - `automatic_pagination`: If you want to paginate automatically in batches of `limit` over entire collection. Default is `True`.
