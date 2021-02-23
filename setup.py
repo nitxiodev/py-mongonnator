@@ -21,7 +21,7 @@ setuptools.setup(
     url="https://github.com/nitxiodev/py-mongonnator",
     packages=setuptools.find_packages(),
     install_requires=[
-        'pymongo[srv]==3.10.1',
+        'pymongo[srv]>=3.10.1',
     ],
     test_requires=[
         'pytest',
