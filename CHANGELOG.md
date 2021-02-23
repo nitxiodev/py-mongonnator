@@ -27,3 +27,8 @@
 ### updating readme
 - updating readme adding python version compatibility
 - github: dropping dev action 
+
+## [v1.0.3] - 23-02-2021
+### upgrading dependencies in setup.py
+- setup: upgrading dependencies
+- Update README.md
