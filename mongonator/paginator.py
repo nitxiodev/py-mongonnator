@@ -4,7 +4,7 @@ from typing import Optional, Union
 from pymongo.collection import Collection
 
 from mongonator.query import Query
-from mongonator.wrapper import BaseResponseWrapper, AsIsWrapper
+from mongonator.wrapper import BaseResponseWrapper, AsIsWrapper, ChatWrapper
 
 PaginatedResponse = namedtuple("PaginatedResponse", "response prev_page next_page batch_size")
 
@@ -40,6 +40,9 @@ class Paginate(Query):
 
         if not projection:
             projection = {}
+
+        if isinstance(response_wrapper, ChatWrapper) and ordering_case != -1:
+            raise ValueError("Display data as chat must be coupled to DESCENDING ordering")
 
         super(Paginate, self).__init__(query, prev_page, next_page, ordering_case, ordering_field)
 

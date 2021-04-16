@@ -22,6 +22,7 @@ DEFAULT_LIMIT = 75
 class PaginatedCollection(Collection):
     def paginate(
         self,
+        response_wrapper=AsIsWrapper(),
         query=None,
         projection=None,
         prev_page=None,
@@ -30,13 +31,7 @@ class PaginatedCollection(Collection):
         ordering=DESCENDING,
         ordering_field=DEFAULT_ORDERING_FIELD,
         automatic_pagination=True,
-        display_as_chat=False,
     ):
-
-        if display_as_chat and ordering == ASCENDING:
-            raise ValueError("Display data as chat must be coupled to DESCENDING ordering")
-
-        response_wrapper = AsIsWrapper() if not display_as_chat else ChatWrapper()
         return Paginate(
             collection=self,
             limit=limit,
