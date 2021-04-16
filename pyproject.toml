@@ -30,6 +30,10 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | CHANGELOG.md
+  | .gitignore
+  | README.md
+  | tox*
 )/
 '''
 
