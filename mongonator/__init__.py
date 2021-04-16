@@ -7,23 +7,48 @@ from pymongo.database import Database
 from mongonator.paginator import Paginate
 
 # ORDERINGS
+from mongonator.wrapper import AsIsWrapper, ChatWrapper
+
 ASCENDING = pymongo.ASCENDING
 DESCENDING = pymongo.DESCENDING
 
 # DEFAULT ORDERING FIELD
-DEFAULT_ORDERING_FIELD = '_id'
+DEFAULT_ORDERING_FIELD = "_id"
 
 # DEFAULT PAGINATION LIMIT
 DEFAULT_LIMIT = 75
 
 
 class PaginatedCollection(Collection):
-    def paginate(self, query=None, projection=None, prev_page=None, next_page=None,
-                 limit=DEFAULT_LIMIT, ordering=DESCENDING, ordering_field=DEFAULT_ORDERING_FIELD,
-                 automatic_pagination=True):
-        return Paginate(collection=self, limit=limit, ordering_field=ordering_field, ordering_case=ordering,
-                        query=query, projection=projection, prev_page=prev_page, next_page=next_page,
-                        automatic_pagination=automatic_pagination).paginate()
+    def paginate(
+        self,
+        query=None,
+        projection=None,
+        prev_page=None,
+        next_page=None,
+        limit=DEFAULT_LIMIT,
+        ordering=DESCENDING,
+        ordering_field=DEFAULT_ORDERING_FIELD,
+        automatic_pagination=True,
+        display_as_chat=False,
+    ):
+
+        if display_as_chat and ordering == ASCENDING:
+            raise ValueError("Display data as chat must be coupled to DESCENDING ordering")
+
+        response_wrapper = AsIsWrapper() if not display_as_chat else ChatWrapper()
+        return Paginate(
+            collection=self,
+            limit=limit,
+            ordering_field=ordering_field,
+            ordering_case=ordering,
+            query=query,
+            projection=projection,
+            prev_page=prev_page,
+            next_page=next_page,
+            automatic_pagination=automatic_pagination,
+            response_wrapper=response_wrapper,
+        ).paginate()
 
 
 def getitem(self, name):
@@ -33,7 +58,6 @@ def getitem(self, name):
 
 Database.__getitem__ = getitem
 
-name = 'Mongonator'
-__all__ = ['MongoClientWithPagination', 'DEFAULT_LIMIT',
-           'DEFAULT_ORDERING_FIELD', 'ASCENDING', 'DESCENDING']
+name = "Mongonator"
+__all__ = ["MongoClientWithPagination", "DEFAULT_LIMIT", "DEFAULT_ORDERING_FIELD", "ASCENDING", "DESCENDING"]
 __version__ = "${VERSION}"

@@ -22,28 +22,24 @@ class Query(PointerMixin):
         return self._prev_page is None and self._next_page is None
 
     def _build_mongo_filter(self, field, _id, mongo_key):
-        if self._field != '_id':
+        if self._field != "_id":
             next_page_query = [
                 {self._field: {mongo_key: field}},
-                {self._field: field,
-                 '_id': {mongo_key: ObjectId(_id)}},
+                {self._field: field, "_id": {mongo_key: ObjectId(_id)}},
             ]
 
-            if '$or' in self._mongo_filter:
-                self._mongo_filter['$and'] = [
-                    {'$or': next_page_query},
-                    {'$or': self._mongo_filter.pop('$or')}
-                ]
+            if "$or" in self._mongo_filter:
+                self._mongo_filter["$and"] = [{"$or": next_page_query}, {"$or": self._mongo_filter.pop("$or")}]
             else:
-                self._mongo_filter['$or'] = next_page_query
+                self._mongo_filter["$or"] = next_page_query
         else:
-            self._mongo_filter['_id'] = {mongo_key: ObjectId(_id)}
+            self._mongo_filter["_id"] = {mongo_key: ObjectId(_id)}
 
     def _build_sortable_filter(self, ordering):
-        if self._field != '_id':
+        if self._field != "_id":
             self._sortable_filter.append((self._field, ordering))
 
-        self._sortable_filter.append(('_id', self._ordering))
+        self._sortable_filter.append(("_id", self._ordering))
 
     def _build_internal_structures(self, paginator_pointer, next):
         mongo_key, ordering = self.get_page_order(self._ordering, next)
