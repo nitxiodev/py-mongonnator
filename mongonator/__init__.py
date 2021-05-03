@@ -1,28 +1,15 @@
 """ Simple paginator for PyMongo driver using bucket pattern """
-import pymongo
 from pymongo import MongoClient as MongoClientWithPagination
 from pymongo.collection import Collection
 from pymongo.database import Database
 
 from mongonator.paginator import Paginate
-
-# ORDERINGS
-from mongonator.wrapper import AsIsWrapper, ChatWrapper
-
-ASCENDING = pymongo.ASCENDING
-DESCENDING = pymongo.DESCENDING
-
-# DEFAULT ORDERING FIELD
-DEFAULT_ORDERING_FIELD = "_id"
-
-# DEFAULT PAGINATION LIMIT
-DEFAULT_LIMIT = 75
+from mongonator.settings import DEFAULT_LIMIT, DESCENDING, DEFAULT_ORDERING_FIELD
 
 
 class PaginatedCollection(Collection):
     def paginate(
         self,
-        response_wrapper=AsIsWrapper(),
         query=None,
         projection=None,
         prev_page=None,
@@ -31,6 +18,9 @@ class PaginatedCollection(Collection):
         ordering=DESCENDING,
         ordering_field=DEFAULT_ORDERING_FIELD,
         automatic_pagination=True,
+        collation=None,
+        extra_pipeline=None,
+        response_format="default",
     ):
         return Paginate(
             collection=self,
@@ -39,11 +29,14 @@ class PaginatedCollection(Collection):
             ordering_case=ordering,
             query=query,
             projection=projection,
+            collation=collation,
+            automatic_pagination=automatic_pagination,
+            extra_pipeline=extra_pipeline,
+            response_format=response_format,
+        ).paginate(
             prev_page=prev_page,
             next_page=next_page,
-            automatic_pagination=automatic_pagination,
-            response_wrapper=response_wrapper,
-        ).paginate()
+        )
 
 
 def getitem(self, name):
