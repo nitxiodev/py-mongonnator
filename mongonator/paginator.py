@@ -1,128 +1,90 @@
-from collections import namedtuple
-from typing import Optional, Union
+from typing import Optional, Union, Literal
 
 from pymongo.collection import Collection
 
-from mongonator.query import Query
-from mongonator.wrapper import BaseResponseWrapper, AsIsWrapper, ChatWrapper
-
-PaginatedResponse = namedtuple("PaginatedResponse", "response prev_page next_page batch_size")
+from mongonator import settings
+from mongonator.query import FindQuery, AggregateQuery
 
 
-class Paginate(Query):
+class Paginate:
+    """Bucket pattern paginator over mongo documents"""
+
+    # Default lookup engine to perform the queries against mongodb
+    queryset = FindQuery
+
+    # The default page size
+    page_size = settings.DEFAULT_LIMIT
+
+    # The default ordering case
+    ordering = settings.DEFAULT_ORDERING_FIELD
+
     def __init__(
         self,
         collection: Collection,
         limit: int,
         ordering_case: int,
         ordering_field: str,
-        response_wrapper: BaseResponseWrapper,
         query: Optional[dict] = None,
         projection: Optional[dict] = None,
-        prev_page: Optional[Union[str, None]] = None,
-        next_page: Optional[Union[str, None]] = None,
+        collation: Optional[dict] = None,
         automatic_pagination: Optional[bool] = True,
+        extra_pipeline: Optional[list] = None,
+        response_format: Literal["chat", "default"] = "default",
     ):
-        """
-        Create a paginate instance to retrieve results from mongo collection in batches of limit.
-        :param collection: Pointer to mongo collection
-        :param query: query filter to pass into find method
-        :param prev_page: Pointer to previous page
-        :param next_page: Pointer to next page
-        :param limit: Limit of results to retrieve from db
-        :param ordering_case: Ordering case for pagination (ASCENDING, DESCENDING)
-        :param ordering_field: Field used to paginate
-        :param response_wrapper: Display the most recent value on bottom, just like chat application or according to
-            ordering_case
-        """
-        if not query:
-            query = {}
+        projection = projection or {}
+        projection_copy = projection.copy()
 
-        if not projection:
-            projection = {}
+        # Add _id as default projection
+        projection_copy.update(**{"_id": True})
 
-        if isinstance(response_wrapper, ChatWrapper) and ordering_case != -1:
-            raise ValueError("Display data as chat must be coupled to DESCENDING ordering")
+        # Get original projection to avoid passing non requested fields in response
+        dropped_fields = {field: False for field in list(set(projection_copy.keys()) - set(projection.keys()))}
 
-        super(Paginate, self).__init__(query, prev_page, next_page, ordering_case, ordering_field)
+        # Complex queries needs aggregate framework
+        if dropped_fields or collation or extra_pipeline:
+            self.queryset = AggregateQuery
+
+        # Instance queryset
+        self.queryset = self.queryset(
+            query=query,
+            ordering_case=ordering_case,
+            ordering_field=ordering_field,
+            response_wrapper=response_format,
+            excluded_fields=dropped_fields,
+        )
 
         self._collection = collection
-        self._limit = limit
         self._projection = projection
+        self._limit = limit
         self._automatic_pagination = automatic_pagination
-        self._response_wrapper = response_wrapper
-
-        # _id is mandatory to paginate
-        if "_id" in self._projection:
-            self._projection.pop("_id")
-
-    def paginate_one_batch(self):
-        self.build_query()
-
-        mongo_response = list(
-            self._collection.find(self._mongo_filter, projection=self._projection)
-            .sort(self._sortable_filter)
-            .limit(self._limit + 1)
-        )
-        paginator_pointers = self.paginator_pointers(mongo_response, "None", self._field)
-        batch_size = len(mongo_response)
-        has_next_page = batch_size > self._limit
-
-        if mongo_response:
-
-            # If has next page, pop last element
-            if has_next_page:
-                mongo_response = mongo_response[:-1]
-
-            # Is first query?
-            if self.is_first_query:
-                if has_next_page:
-                    paginator_pointers = self.paginator_pointers(mongo_response, "initial", self._field)
-                else:
-                    paginator_pointers = self.paginator_pointers(mongo_response, "", self._field)
-            else:
-                # Go back?
-                if self._prev_page is not None:
-                    mongo_response = mongo_response[::-1]  # reverse order
-
-                    if has_next_page:
-                        paginator_pointers = self.paginator_pointers(mongo_response, "both", self._field)
-                    else:
-                        paginator_pointers = self.paginator_pointers(mongo_response, "initial", self._field)
-                else:
-                    if has_next_page:
-                        paginator_pointers = self.paginator_pointers(mongo_response, "both", self._field)
-                    else:
-                        paginator_pointers = self.paginator_pointers(mongo_response, "ahead", self._field)
-
-        return PaginatedResponse(
-            response=self._response_wrapper(mongo_response),
-            prev_page=paginator_pointers.get("prev_page"),
-            next_page=paginator_pointers.get("next_page"),
-            batch_size=self._limit if (self._limit - batch_size) == -1 else batch_size,
-        )
+        self._extra_pipeline = extra_pipeline or []
+        self._collation = collation or {}
 
     def _pagination_in_batches(self, response):
         yield response
         while response.next_page:
-            response = Paginate(
+            response = self.queryset.run_query(
                 collection=self._collection,
-                limit=self._limit,
-                ordering_field=self._field,
-                response_wrapper=self._response_wrapper,
-                ordering_case=self._ordering,
-                query=self._query,
+                page_size=self._limit,
                 projection=self._projection,
-                prev_page=self._prev_page,
+                collation=self._collation,
+                extra_pipeline=self._extra_pipeline,
                 next_page=response.next_page,
-                automatic_pagination=self._automatic_pagination,
-            ).paginate_one_batch()
+            )
             yield response
 
-    def paginate(self):
+    def paginate(self, prev_page, next_page):
         """Paginate in batches of `limit` size over entire collection"""
 
-        response = self.paginate_one_batch()
+        response = self.queryset.run_query(
+            collection=self._collection,
+            page_size=self._limit,
+            projection=self._projection,
+            collation=self._collation,
+            extra_pipeline=self._extra_pipeline,
+            prev_page=prev_page,
+            next_page=next_page,
+        )
 
         if self._automatic_pagination:
             return self._pagination_in_batches(response)
