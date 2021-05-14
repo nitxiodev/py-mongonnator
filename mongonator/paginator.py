@@ -1,9 +1,14 @@
 from typing import Optional, Union, Literal
 
+import logging
 from pymongo.collection import Collection
 
+import mongonator
 from mongonator import settings
 from mongonator.query import FindQuery, AggregateQuery
+
+
+logger = logging.getLogger("mongonnator")
 
 
 class Paginate:
@@ -29,20 +34,19 @@ class Paginate:
         collation: Optional[dict] = None,
         automatic_pagination: Optional[bool] = True,
         extra_pipeline: Optional[list] = None,
+        use_aggregate_framework: bool = False,
         response_format: Literal["chat", "default"] = "default",
     ):
-        projection = projection or {}
-        projection_copy = projection.copy()
-
-        # Add _id as default projection
-        projection_copy.update(**{"_id": True})
-
-        # Get original projection to avoid passing non requested fields in response
-        dropped_fields = {field: False for field in list(set(projection_copy.keys()) - set(projection.keys()))}
-
         # Complex queries needs aggregate framework
-        if dropped_fields or collation or extra_pipeline:
+        if extra_pipeline or use_aggregate_framework:
             self.queryset = AggregateQuery
+
+        if ordering_case == mongonator.ASCENDING and response_format == "chat":
+            logger.warning(
+                "Response format 'chat' requires DESCENDING order, but ASCENDING order has been found. "
+                "Ordering case has been changed."
+            )
+            ordering_case = mongonator.DESCENDING
 
         # Instance queryset
         self.queryset = self.queryset(
@@ -50,11 +54,10 @@ class Paginate:
             ordering_case=ordering_case,
             ordering_field=ordering_field,
             response_wrapper=response_format,
-            excluded_fields=dropped_fields,
+            projection=projection,
         )
 
         self._collection = collection
-        self._projection = projection
         self._limit = limit
         self._automatic_pagination = automatic_pagination
         self._extra_pipeline = extra_pipeline or []
@@ -66,7 +69,6 @@ class Paginate:
             response = self.queryset.run_query(
                 collection=self._collection,
                 page_size=self._limit,
-                projection=self._projection,
                 collation=self._collation,
                 extra_pipeline=self._extra_pipeline,
                 next_page=response.next_page,
@@ -79,7 +81,6 @@ class Paginate:
         response = self.queryset.run_query(
             collection=self._collection,
             page_size=self._limit,
-            projection=self._projection,
             collation=self._collation,
             extra_pipeline=self._extra_pipeline,
             prev_page=prev_page,

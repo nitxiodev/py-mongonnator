@@ -4,7 +4,7 @@ from pymongo.collection import Collection
 from pymongo.database import Database
 
 from mongonator.paginator import Paginate
-from mongonator.settings import DEFAULT_LIMIT, DESCENDING, DEFAULT_ORDERING_FIELD
+from mongonator.settings import DEFAULT_LIMIT, DESCENDING, DEFAULT_ORDERING_FIELD, ASCENDING
 
 
 class PaginatedCollection(Collection):
@@ -20,6 +20,7 @@ class PaginatedCollection(Collection):
         automatic_pagination=True,
         collation=None,
         extra_pipeline=None,
+        use_aggregate_framework=False,
         response_format="default",
     ):
         return Paginate(
@@ -32,6 +33,7 @@ class PaginatedCollection(Collection):
             collation=collation,
             automatic_pagination=automatic_pagination,
             extra_pipeline=extra_pipeline,
+            use_aggregate_framework=use_aggregate_framework,
             response_format=response_format,
         ).paginate(
             prev_page=prev_page,

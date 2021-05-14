@@ -1,6 +1,7 @@
 from collections import namedtuple
 
 from bson import ObjectId
+from pymongo.collation import Collation
 
 from mongonator.pointermixin import PointerMixin
 from mongonator.wrapper import DefaultResponseWrapper, ChatResponseWrapper
@@ -12,7 +13,7 @@ class Query(PointerMixin):
     # Default response wrapper to display results
     response_wrapper = DefaultResponseWrapper
 
-    def __init__(self, query, ordering_case, ordering_field, response_wrapper, excluded_fields):
+    def __init__(self, query, ordering_case, ordering_field, response_wrapper, projection):
         self._ordering = ordering_case
         self._ordering_field = ordering_field
         self._query = query or {}
@@ -23,8 +24,10 @@ class Query(PointerMixin):
         # Default response wrapper
         self.response_wrapper = ChatResponseWrapper if response_wrapper == "chat" else self.response_wrapper
 
-        # Drop non included fields in projection
-        self._excluded_fields = excluded_fields
+        # Make a copy of projection to add _id as is required for pagination
+        self._projection = projection or {}
+        self._projection_copy = self._projection.copy()
+        self._projection_copy.update(**{"_id": True})
 
     def _build_mongo_filter(self, ordering_field, _id, mongo_key):
         if self._ordering_field != "_id":
@@ -57,19 +60,12 @@ class Query(PointerMixin):
         else:
             self._build_sortable_filter(self._ordering)
 
-    def run_query(self, collection, page_size, projection, collation, extra_pipeline, prev_page=None, next_page=None):
+    def run_query(self, collection, page_size, collation, extra_pipeline, prev_page=None, next_page=None):
         """Run query against mongodb and return the paginated response"""
         self.build_query(prev_page, next_page)
 
         mongo_response = list(
-            self(
-                collection=collection,
-                page_size=page_size,
-                projection=projection,
-                collation=collation,
-                extra_pipeline=extra_pipeline,
-                final_projection=self._excluded_fields,
-            )
+            self(collection=collection, page_size=page_size, collation=collation, extra_pipeline=extra_pipeline)
         )
 
         paginator_pointers = self.paginator_pointers(mongo_response, "None", self._ordering_field)
@@ -122,10 +118,11 @@ class FindQuery(Query):
 
         self.sortable_filter.append(("_id", self._ordering))
 
-    def __call__(self, collection, page_size, projection, **kwargs):
+    def __call__(self, collection, page_size, collation, **kwargs):
         return (
-            getattr(collection, self.mongo_method)(filter=self._mongo_filter, projection=projection)
+            getattr(collection, self.mongo_method)(filter=self._mongo_filter, projection=self._projection)
             .sort(self.sortable_filter)
+            .collation(Collation(**collation) if collation else None)
             .limit(page_size + 1)
         )
 
@@ -142,15 +139,22 @@ class AggregateQuery(Query):
 
         self.sortable_filter["_id"] = self._ordering
 
-    def __call__(self, collection, page_size, projection, collation, extra_pipeline, final_projection):
+    def __call__(self, collection, page_size, collation, extra_pipeline, **kwargs):
+        # Drop redundant kwargs
+        kwargs.pop("allowDiskUse", None)
+
         return getattr(collection, self.mongo_method)(
             [
                 {"$match": self._mongo_filter},
-                # {"collation": collation},
-                {"$project": projection},
+                {"$project": self._projection_copy},
                 {"$sort": self.sortable_filter},
                 {"$limit": page_size + 1},
-                {"$project": final_projection},
             ]
             + extra_pipeline
+            + [
+                {"$project": self._projection},
+            ],
+            collation=Collation(**collation) if collation else None,
+            allowDiskUse=True,
+            **kwargs,
         )
