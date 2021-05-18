@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "agnostic-orm"
+name = "mongonnator"
 version = "0.0.1"
 description = "ORM with active record pattern for every database engine"
 authors = ["nitxiodev <smnitxio@gmail.com>"]
