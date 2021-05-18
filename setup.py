@@ -7,8 +7,8 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 # Read version from init
-regex = re.compile(r'__version__\s*=\s*(\S+)', re.M)
-data = open(os.path.join('mongonator', '__init__.py')).read()
+regex = re.compile(r"__version__\s*=\s*(\S+)", re.M)
+data = open(os.path.join("mongonator", "__init__.py")).read()
 
 setuptools.setup(
     name="PyMongonnator",
@@ -21,13 +21,13 @@ setuptools.setup(
     url="https://github.com/nitxiodev/py-mongonnator",
     packages=setuptools.find_packages(),
     install_requires=[
-        'pymongo[srv]>=3.10.1',
+        "pymongo[srv]>=3.10.1",
     ],
     test_requires=[
-        'pytest',
-        'pytest-cov',
-        'coverage==4.5.4',
-        'tox',
+        "pytest",
+        "pytest-cov",
+        "coverage==4.5.4",
+        "tox",
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
