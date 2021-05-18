@@ -1,12 +1,12 @@
-from typing import Optional, Union, Literal
-
 import logging
+from typing import Optional
+
 from pymongo.collection import Collection
 
 import mongonator
 from mongonator import settings
+from mongonator.exceptions import MongonatorError
 from mongonator.query import FindQuery, AggregateQuery
-
 
 logger = logging.getLogger("mongonnator")
 
@@ -17,26 +17,24 @@ class Paginate:
     # Default lookup engine to perform the queries against mongodb
     queryset = FindQuery
 
-    # The default page size
-    page_size = settings.DEFAULT_LIMIT
-
-    # The default ordering case
-    ordering = settings.DEFAULT_ORDERING_FIELD
-
     def __init__(
         self,
         collection: Collection,
         limit: int,
         ordering_case: int,
-        ordering_field: str,
+        ordering_field: str = settings.DEFAULT_ORDERING_FIELD,
         query: Optional[dict] = None,
         projection: Optional[dict] = None,
         collation: Optional[dict] = None,
         automatic_pagination: Optional[bool] = True,
         extra_pipeline: Optional[list] = None,
         use_aggregate_framework: bool = False,
-        response_format: Literal["chat", "default"] = "default",
+        response_format: Optional[str] = "default",
     ):
+        if ordering_field is None:
+            raise MongonatorError("Ordering field must be set and cannot be None. You can leave the default "
+                                  "ordering_field (internal mongo _id).")
+
         # Complex queries needs aggregate framework
         if extra_pipeline or use_aggregate_framework:
             self.queryset = AggregateQuery
