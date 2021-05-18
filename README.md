@@ -16,6 +16,10 @@ pip install PyMongonnator
 - Built-in API importing overriden MongoClient class.
 - Explicit API passing a MongoClient collection into Paginator method.
 
+# UPDATE
+This readme needs to be updated for the upcoming v2.0.0 because it adds minor changes that may break existing 
+deployments.
+
 ## Options
 
 - `query`: a SON object specifying elements which must be present for a document to be included in the result set. Default is `{}` (query all).
