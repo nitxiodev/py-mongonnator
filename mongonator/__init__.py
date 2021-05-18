@@ -50,4 +50,4 @@ Database.__getitem__ = getitem
 
 name = "Mongonator"
 __all__ = ["MongoClientWithPagination", "DEFAULT_LIMIT", "DEFAULT_ORDERING_FIELD", "ASCENDING", "DESCENDING"]
-__version__ = "${VERSION}"
+__version__ = "v2.0.0b"
