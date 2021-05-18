@@ -27,7 +27,7 @@ class Query(PointerMixin):
         # Make a copy of projection to add _id as is required for pagination
         self._projection = projection or {}
         self._projection_copy = self._projection.copy()
-        self._projection_copy.update(**{"_id": True})
+        self._projection_copy.update(**{"_id": True, ordering_field: True})
 
     def _build_mongo_filter(self, ordering_field, _id, mongo_key):
         if self._ordering_field != "_id":
@@ -120,7 +120,7 @@ class FindQuery(Query):
 
     def __call__(self, collection, page_size, collation, **kwargs):
         return (
-            getattr(collection, self.mongo_method)(filter=self._mongo_filter, projection=self._projection)
+            getattr(collection, self.mongo_method)(filter=self._mongo_filter, projection=self._projection_copy)
             .sort(self.sortable_filter)
             .collation(Collation(**collation) if collation else None)
             .limit(page_size + 1)
@@ -139,9 +139,19 @@ class AggregateQuery(Query):
 
         self.sortable_filter["_id"] = self._ordering
 
+    def sanitize_pipeline(self, extra_pipeline):
+        """Sanitize project stage in extra_pipeline to avoid drop needed fields for pagination"""
+        sanitized_fields = set(self._projection_copy.keys()) - set(self._projection.keys())
+
+        if sanitized_fields:
+            for stage in extra_pipeline:
+                if "$project" in stage.keys():
+                    stage["$project"].update(**{"_id": True, self._ordering_field: True})
+
     def __call__(self, collection, page_size, collation, extra_pipeline, **kwargs):
         # Drop redundant kwargs
         kwargs.pop("allowDiskUse", None)
+        self.sanitize_pipeline(extra_pipeline=extra_pipeline)
 
         return getattr(collection, self.mongo_method)(
             [
@@ -150,10 +160,7 @@ class AggregateQuery(Query):
                 {"$sort": self.sortable_filter},
                 {"$limit": page_size + 1},
             ]
-            + extra_pipeline
-            + [
-                {"$project": self._projection},
-            ],
+            + extra_pipeline,
             collation=Collation(**collation) if collation else None,
             allowDiskUse=True,
             **kwargs,
