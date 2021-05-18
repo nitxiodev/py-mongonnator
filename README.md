@@ -16,129 +16,202 @@ pip install PyMongonnator
 - Built-in API importing overriden MongoClient class.
 - Explicit API passing a MongoClient collection into Paginator method.
 
-# UPDATE
+# UPDATE - v2.0.0
 This readme needs to be updated for the upcoming v2.0.0 because it adds minor changes that may break existing 
 deployments.
 
-## Options
+[comment]: <> (## Options)
 
-- `query`: a SON object specifying elements which must be present for a document to be included in the result set. Default is `{}` (query all).
-- `limit`: Number of documents per page. Default is `75`.
-- `ordering_case`: Ordering sense when retrieving documents from mongo. Valid options are:
-    - `ASCENDING`: Ascending sort order.
-    - `DESCENDING`: Descending sort order (**default**).
-- `ordering_field`: Field to order collections. Default is `_id`.
-- `projection`:  a dict specifying the fields to include or exclude. Please note that the id cannot be excluded because is mandatory in pagination. Default is `{}` (include only the `_id`).
-- `prev_page`: Previous pagination pointer. When no previous page is available, will be None. Default is `None`.
-- `next_page`: Next pagination pointer. When no next page is available, will be None. Default is `None`.
-- `automatic_pagination`: If you want to paginate automatically in batches of `limit` over entire collection. Default is `True`.
+[comment]: <> (- `query`: a SON object specifying elements which must be present for a document to be included in the result set. Default is `{}` &#40;query all&#41;.)
 
-When options are set, **they should remain unchanged during the whole pagination process** except pagination pointers (prev_page/next_page).
+[comment]: <> (- `limit`: Number of documents per page. Default is `75`.)
 
-## Built-in API (recommended)
-```python
-from mongonator import MongoClientWithPagination, ASCENDING
+[comment]: <> (- `ordering_case`: Ordering sense when retrieving documents from mongo. Valid options are:)
 
+[comment]: <> (    - `ASCENDING`: Ascending sort order.)
 
-MONGO_URI = 'mongodb://[user]:[password]@[host]:[port]/admin'
-DATABASE = 'database'
-COLLECTION = 'collection'
+[comment]: <> (    - `DESCENDING`: Descending sort order &#40;**default**&#41;.)
 
-# Instantiate mongo client with pagination
-mongo_client = MongoClientWithPagination(MONGO_URI)
-db = mongo_client[DATABASE]
-col = db[COLLECTION]
+[comment]: <> (- `ordering_field`: Field to order collections. Default is `_id`.)
 
-query_filter = {'name': {'$ne': None}}
+[comment]: <> (- `projection`:  a dict specifying the fields to include or exclude. Please note that the id cannot be excluded because is mandatory in pagination. Default is `{}` &#40;include only the `_id`&#41;.)
 
+[comment]: <> (- `prev_page`: Previous pagination pointer. When no previous page is available, will be None. Default is `None`.)
 
-# Paginate automatically in batches of 5
-for d in col.paginate(query=query_filter, limit=5, projection={'email': 1, 'name': 1},
-                      ordering_field='name', ordering=ASCENDING):
-    print(d.response)
-    print(d.batch_size)
+[comment]: <> (- `next_page`: Next pagination pointer. When no next page is available, will be None. Default is `None`.)
+
+[comment]: <> (- `automatic_pagination`: If you want to paginate automatically in batches of `limit` over entire collection. Default is `True`.)
+
+[comment]: <> (When options are set, **they should remain unchanged during the whole pagination process** except pagination pointers &#40;prev_page/next_page&#41;.)
+
+[comment]: <> (## Built-in API &#40;recommended&#41;)
+
+[comment]: <> (```python)
+
+[comment]: <> (from mongonator import MongoClientWithPagination, ASCENDING)
 
 
-# Paginate manually in batches of 5
-page = col.paginate(query=query_filter, limit=5, projection={'email': 1, 'name': 1},
-                      ordering_field='name', ordering=ASCENDING, automatic_pagination=False)
+[comment]: <> (MONGO_URI = 'mongodb://[user]:[password]@[host]:[port]/admin')
+
+[comment]: <> (DATABASE = 'database')
+
+[comment]: <> (COLLECTION = 'collection')
+
+[comment]: <> (# Instantiate mongo client with pagination)
+
+[comment]: <> (mongo_client = MongoClientWithPagination&#40;MONGO_URI&#41;)
+
+[comment]: <> (db = mongo_client[DATABASE])
+
+[comment]: <> (col = db[COLLECTION])
+
+[comment]: <> (query_filter = {'name': {'$ne': None}})
 
 
-# ahead (next five documents)
-next_batch_of_five = col.paginate(query=query_filter, limit=5, projection={'email': 1, 'name': 1},
-                      ordering_field='name', ordering=ASCENDING, automatic_pagination=False, next_page=page.next_page)
+[comment]: <> (# Paginate automatically in batches of 5)
+
+[comment]: <> (for d in col.paginate&#40;query=query_filter, limit=5, projection={'email': 1, 'name': 1},)
+
+[comment]: <> (                      ordering_field='name', ordering=ASCENDING&#41;:)
+
+[comment]: <> (    print&#40;d.response&#41;)
+
+[comment]: <> (    print&#40;d.batch_size&#41;)
+
+
+[comment]: <> (# Paginate manually in batches of 5)
+
+[comment]: <> (page = col.paginate&#40;query=query_filter, limit=5, projection={'email': 1, 'name': 1},)
+
+[comment]: <> (                      ordering_field='name', ordering=ASCENDING, automatic_pagination=False&#41;)
+
+
+[comment]: <> (# ahead &#40;next five documents&#41;)
+
+[comment]: <> (next_batch_of_five = col.paginate&#40;query=query_filter, limit=5, projection={'email': 1, 'name': 1},)
+
+[comment]: <> (                      ordering_field='name', ordering=ASCENDING, automatic_pagination=False, next_page=page.next_page&#41;)
 
                
-# back (prev five documents from next_batch_of_five situation)
-prev_batch_of_five = col.paginate(query=query_filter, limit=5, projection={'email': 1, 'name': 1},
-                      ordering_field='name', ordering=ASCENDING, automatic_pagination=False, next_page=next_batch_of_five.prev_page)
-```
+[comment]: <> (# back &#40;prev five documents from next_batch_of_five situation&#41;)
 
-This method is intended when you just started a new project from scratch or for existing projects if you are willing to substitute every `MongoClient` instance for `MongoClientWithPagination`.
+[comment]: <> (prev_batch_of_five = col.paginate&#40;query=query_filter, limit=5, projection={'email': 1, 'name': 1},)
 
-## Explicit API
-```python
-from mongonator import Paginate, ASCENDING
-from pymongo import MongoClient
+[comment]: <> (                      ordering_field='name', ordering=ASCENDING, automatic_pagination=False, next_page=next_batch_of_five.prev_page&#41;)
+
+[comment]: <> (```)
+
+[comment]: <> (This method is intended when you just started a new project from scratch or for existing projects if you are willing to substitute every `MongoClient` instance for `MongoClientWithPagination`.)
+
+[comment]: <> (## Explicit API)
+
+[comment]: <> (```python)
+
+[comment]: <> (from mongonator import Paginate, ASCENDING)
+
+[comment]: <> (from pymongo import MongoClient)
 
 
-MONGO_URI = 'mongodb://[user]:[password]@[host]:[port]/admin'
-DATABASE = 'database'
-COLLECTION = 'collection'
+[comment]: <> (MONGO_URI = 'mongodb://[user]:[password]@[host]:[port]/admin')
 
-query_filter = {'name': {'$ne': None}}
+[comment]: <> (DATABASE = 'database')
 
-# Instantiate MongoClient from pymongo
-with MongoClient(MONGO_URI) as mongo_client:
-    db = mongo_client[DATABASE]
-    col = db[COLLECTION]
+[comment]: <> (COLLECTION = 'collection')
 
-    # Manual pagination in batches of 2
-    paginator = Paginate(
-        collection=col,
-        query=query_filter,
-        limit=2,
-        ordering_field='email',
-        ordering_case=ASCENDING,
-        projection={'email': 1, 'name': 1},
-        automatic_pagination=False
-    ).paginate()
+[comment]: <> (query_filter = {'name': {'$ne': None}})
 
-    # Print results
-    print("Response: ", paginator.response)
-    print("Prev page: ", paginator.prev_page)
-    print("Next page: ", paginator.next_page)
-    print("Batch size: ", paginator.batch_size)
+[comment]: <> (# Instantiate MongoClient from pymongo)
 
-    # Manual pagination for two next results...
-    paginator = Paginate(
-        collection=col,
-        query=query_filter,
-        limit=2,
-        ordering_field='email',
-        ordering_case=ASCENDING,
-        projection={'email': 1, 'name': 1},
-        automatic_pagination=False,
-        next_page=paginator.next_page,
-    ).paginate()
+[comment]: <> (with MongoClient&#40;MONGO_URI&#41; as mongo_client:)
 
-    # Print results
-    print("Response: ", paginator.response)
-    print("Prev page: ", paginator.prev_page)
-    print("Next page: ", paginator.next_page)
-    print("Batch size: ", paginator.batch_size)
+[comment]: <> (    db = mongo_client[DATABASE])
+
+[comment]: <> (    col = db[COLLECTION])
+
+[comment]: <> (    # Manual pagination in batches of 2)
+
+[comment]: <> (    paginator = Paginate&#40;)
+
+[comment]: <> (        collection=col,)
+
+[comment]: <> (        query=query_filter,)
+
+[comment]: <> (        limit=2,)
+
+[comment]: <> (        ordering_field='email',)
+
+[comment]: <> (        ordering_case=ASCENDING,)
+
+[comment]: <> (        projection={'email': 1, 'name': 1},)
+
+[comment]: <> (        automatic_pagination=False)
+
+[comment]: <> (    &#41;.paginate&#40;&#41;)
+
+[comment]: <> (    # Print results)
+
+[comment]: <> (    print&#40;"Response: ", paginator.response&#41;)
+
+[comment]: <> (    print&#40;"Prev page: ", paginator.prev_page&#41;)
+
+[comment]: <> (    print&#40;"Next page: ", paginator.next_page&#41;)
+
+[comment]: <> (    print&#40;"Batch size: ", paginator.batch_size&#41;)
+
+[comment]: <> (    # Manual pagination for two next results...)
+
+[comment]: <> (    paginator = Paginate&#40;)
+
+[comment]: <> (        collection=col,)
+
+[comment]: <> (        query=query_filter,)
+
+[comment]: <> (        limit=2,)
+
+[comment]: <> (        ordering_field='email',)
+
+[comment]: <> (        ordering_case=ASCENDING,)
+
+[comment]: <> (        projection={'email': 1, 'name': 1},)
+
+[comment]: <> (        automatic_pagination=False,)
+
+[comment]: <> (        next_page=paginator.next_page,)
+
+[comment]: <> (    &#41;.paginate&#40;&#41;)
+
+[comment]: <> (    # Print results)
+
+[comment]: <> (    print&#40;"Response: ", paginator.response&#41;)
+
+[comment]: <> (    print&#40;"Prev page: ", paginator.prev_page&#41;)
+
+[comment]: <> (    print&#40;"Next page: ", paginator.next_page&#41;)
+
+[comment]: <> (    print&#40;"Batch size: ", paginator.batch_size&#41;)
     
-    # ... Or simply use automatic pagination in batches of 2 (starting in first document)
-    for d in Paginate(
-        collection=col,
-        query=query_filter,
-        limit=2,
-        ordering_field='email',
-        ordering_case=ASCENDING,
-        projection={'email': 1, 'name': 1},
-        automatic_pagination=True,
-    ).paginate():
-        print(d.response)
-```
+[comment]: <> (    # ... Or simply use automatic pagination in batches of 2 &#40;starting in first document&#41;)
 
-This method is intended when you have a big project in production and is not possible to substitute every [MongoClient](https://api.mongodb.com/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient) call. 
+[comment]: <> (    for d in Paginate&#40;)
+
+[comment]: <> (        collection=col,)
+
+[comment]: <> (        query=query_filter,)
+
+[comment]: <> (        limit=2,)
+
+[comment]: <> (        ordering_field='email',)
+
+[comment]: <> (        ordering_case=ASCENDING,)
+
+[comment]: <> (        projection={'email': 1, 'name': 1},)
+
+[comment]: <> (        automatic_pagination=True,)
+
+[comment]: <> (    &#41;.paginate&#40;&#41;:)
+
+[comment]: <> (        print&#40;d.response&#41;)
+
+[comment]: <> (```)
+
+[comment]: <> (This method is intended when you have a big project in production and is not possible to substitute every [MongoClient]&#40;https://api.mongodb.com/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient&#41; call. )
