@@ -42,3 +42,13 @@
 - - [Changelog](https://github.com/pytest-dev/py/blob/master/CHANGELOG.rst)
 - - [Commits](https://github.com/pytest-dev/py/compare/1.9.0...1.10.0)
 - Signed-off-by: dependabot[bot] <support@github.com>
+
+## [v1.0.4] - 24-03-2023
+### add support for the latest python versions
+- config: update dependencies for the latest python versions
+- build(deps): bump py from 1.9.0 to 1.10.0
+- Bumps [py](https://github.com/pytest-dev/py) from 1.9.0 to 1.10.0.
+- - [Release notes](https://github.com/pytest-dev/py/releases)
+- - [Changelog](https://github.com/pytest-dev/py/blob/master/CHANGELOG.rst)
+- - [Commits](https://github.com/pytest-dev/py/compare/1.9.0...1.10.0)
+- Signed-off-by: dependabot[bot] <support@github.com>
