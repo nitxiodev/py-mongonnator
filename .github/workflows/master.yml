@@ -17,7 +17,7 @@ jobs:
       - name: Set git tag version globally
         shell: bash
         run: |
-          expr $(git describe --tags $(git rev-list --tags --max-count=1)) > tag_version.txt
+          expr $(git describe --tags --abbrev=0 $(git rev-list --tags master --max-count=1)) > tag_version.txt
 
       - name: Upload version in artifact
         uses: actions/upload-artifact@v1
