@@ -9,7 +9,7 @@ name = "pypi"
 [dev-packages]
 pytest = "*"
 pytest-cov = "*"
-coverage = "==4.5.4"
+coverage = "*"
 tox = "*"
 tox-conda = "*"
 zipp = "==1.0.0"
