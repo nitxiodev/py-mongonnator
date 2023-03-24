@@ -26,7 +26,7 @@ jobs:
           path: tag_version.txt
 
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: store_git_tag
     strategy:
       max-parallel: 5
