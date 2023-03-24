@@ -38,7 +38,7 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -68,7 +68,7 @@ jobs:
           name: git_version
 
       - name: Set up Python 3.7
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: 3.7
 
@@ -104,7 +104,7 @@ jobs:
           name: dist
 
       - name: Set up Python 3.7
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: 3.7
 
