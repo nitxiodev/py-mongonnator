@@ -37,6 +37,11 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v1
 
+      - name: Download git tag version
+        uses: actions/download-artifact@v1
+        with:
+          name: git_version
+
       - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4
         with:
