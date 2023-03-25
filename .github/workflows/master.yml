@@ -48,7 +48,7 @@ jobs:
           source venv/bin/activate
           pip install -U pip
           pip install pipenv pytest tox tox-gh-actions
-          pipenv sync --dev
+          pipenv install --deploy --dev
 
       - name: Running tests
         run: |
