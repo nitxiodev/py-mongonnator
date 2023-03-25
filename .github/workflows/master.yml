@@ -18,7 +18,7 @@ jobs:
       - name: Set git tag version globally
         shell: bash
         run: |
-          expr $(git describe --tags $(git rev-list --tags --max-count=1)) > tag_version.txt
+          expr $(git describe --tags --abbrev=0 $(git rev-list --tags master --max-count=1)) > tag_version.txt
 
       - name: Upload version in artifact
         uses: actions/upload-artifact@v1
@@ -27,19 +27,24 @@ jobs:
           path: tag_version.txt
 
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     needs: store_git_tag
     strategy:
       max-parallel: 5
       matrix:
-        python-version: [3, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 3.11]
+        python-version: [3, 3.5, 3.6, 3.7, 3.8, 3.9, "3.10", 3.11]
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v1
 
+      - name: Download git tag version
+        uses: actions/download-artifact@v1
+        with:
+          name: git_version
+
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -47,8 +52,12 @@ jobs:
         run: |
           python3 -m venv venv
           source venv/bin/activate
-          pip install -U pip pipenv pytest tox-gh-actions
-          pipenv sync --dev
+          pip install -U pip pipenv==2021.5.29 pytest tox==3.28.0 tox-gh-actions
+
+          export VERSION=`cat git_version/tag_version.txt`
+          sed -i -e s/\${VERSION}/$VERSION\/g mongonator/__init__.py
+
+          pipenv install --deploy --dev --skip-lock
 
       - name: Running tests
         run: |
@@ -69,7 +78,7 @@ jobs:
           name: git_version
 
       - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
           python-version: 3.7
 
@@ -105,7 +114,7 @@ jobs:
           name: dist
 
       - name: Set up Python 3.7
-        uses: actions/setup-python@v1
+        uses: actions/setup-python@v2
         with:
           python-version: 3.7
 

@@ -1,13 +1,13 @@
 # PyMongonnator ![Build](https://github.com/nitxiodev/py-mongonnator/workflows/Build/badge.svg?branch=master)
 Just a simple production-ready mongo paginator written in Python for [PyMongo](https://github.com/mongodb/mongo-python-driver) package using bucket pattern. This package is based in this wonderful `Javascript` module: [mongo-cursor-pagination](https://www.npmjs.com/package/mongo-cursor-pagination).
-The reason for making this library was to paginate over thousands of data stored in mongo collections and we didn't find any library that seamlessly integrated with Pymongo. 
+The reason for making this library was to paginate over thousands of data stored in mongo collections and we didn't find any library that seamlessly integrated with Pymongo.
 
-# Installation 
+# Installation
 ```bash
 pip install PyMongonnator
 ```
 ### Python version compat
-`PyMongonnator` is compatible with the latest Python3 versions: `3`, `3.5`, `3.6`, `3.7`, `3.8`. 
+`PyMongonnator` is compatible with the latest Python3 versions: `3`, `3.5`, `3.6`, `3.7`, `3.8`, `3.9`, `3.10`, `3.11`.
 
 # Usage
 
@@ -64,7 +64,7 @@ page = col.paginate(query=query_filter, limit=5, projection={'email': 1, 'name':
 next_batch_of_five = col.paginate(query=query_filter, limit=5, projection={'email': 1, 'name': 1},
                       ordering_field='name', ordering=ASCENDING, automatic_pagination=False, next_page=page.next_page)
 
-               
+
 # back (prev five documents from next_batch_of_five situation)
 prev_batch_of_five = col.paginate(query=query_filter, limit=5, projection={'email': 1, 'name': 1},
                       ordering_field='name', ordering=ASCENDING, automatic_pagination=False, next_page=next_batch_of_five.prev_page)
@@ -123,7 +123,7 @@ with MongoClient(MONGO_URI) as mongo_client:
     print("Prev page: ", paginator.prev_page)
     print("Next page: ", paginator.next_page)
     print("Batch size: ", paginator.batch_size)
-    
+
     # ... Or simply use automatic pagination in batches of 2 (starting in first document)
     for d in Paginate(
         collection=col,
@@ -137,4 +137,4 @@ with MongoClient(MONGO_URI) as mongo_client:
         print(d.response)
 ```
 
-This method is intended when you have a big project in production and is not possible to substitute every [MongoClient](https://api.mongodb.com/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient) call. 
+This method is intended when you have a big project in production and is not possible to substitute every [MongoClient](https://api.mongodb.com/python/current/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient) call.

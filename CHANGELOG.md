@@ -1,9 +1,9 @@
 
 ## [v1.0.0] - 31-07-2020
 ### launching first release of pymongonnator
-- github: adding master action 
+- github: adding master action
 - mongonnator: adding incremental versioning from git-tags
-- setup: updating license 
+- setup: updating license
 - pytest: fixing coverage directory in .ini file
 - tests: adding tests for mongonnator
 - tox: adding tox configuration
@@ -26,9 +26,19 @@
 ## [v1.0.2] - 31-07-2020
 ### updating readme
 - updating readme adding python version compatibility
-- github: dropping dev action 
+- github: dropping dev action
 
 ## [v1.0.3] - 23-02-2021
 ### upgrading dependencies in setup.py
 - setup: upgrading dependencies
 - Update README.md
+
+## [v1.0.4] - 24-03-2023
+### add support for the latest python versions
+- config: update dependencies for the latest python versions
+- build(deps): bump py from 1.9.0 to 1.10.0
+- Bumps [py](https://github.com/pytest-dev/py) from 1.9.0 to 1.10.0.
+- - [Release notes](https://github.com/pytest-dev/py/releases)
+- - [Changelog](https://github.com/pytest-dev/py/blob/master/CHANGELOG.rst)
+- - [Commits](https://github.com/pytest-dev/py/compare/1.9.0...1.10.0)
+- Signed-off-by: dependabot[bot] <support@github.com>
