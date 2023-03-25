@@ -51,7 +51,7 @@ jobs:
         run: |
           python3 -m venv venv
           source venv/bin/activate
-          pip install -U pip pipenv pytest tox==3.28.0 tox-gh-actions
+          pip install -U pip pipenv pytest==2021.5.29 tox==3.28.0 tox-gh-actions
 
           export VERSION=`cat git_version/tag_version.txt`
           sed -i -e s/\${VERSION}/$VERSION\/g mongonator/__init__.py
