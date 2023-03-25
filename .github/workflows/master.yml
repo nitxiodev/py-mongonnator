@@ -56,7 +56,7 @@ jobs:
           export VERSION=`cat git_version/tag_version.txt`
           sed -i -e s/\${VERSION}/$VERSION\/g mongonator/__init__.py
 
-          pipenv install --deploy --dev
+          pipenv install --deploy --dev --skip-lock
 
       - name: Running tests
         run: |
