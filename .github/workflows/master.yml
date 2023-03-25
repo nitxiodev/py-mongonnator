@@ -46,8 +46,7 @@ jobs:
         run: |
           python3 -m venv venv
           source venv/bin/activate
-          pip install -U pip
-          pip install pipenv pytest tox tox-gh-actions
+          pip install -U pip pipenv pytest tox==3.28.0 tox-gh-actions
           pipenv install --deploy --dev
 
       - name: Running tests
